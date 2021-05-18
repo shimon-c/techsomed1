@@ -13,38 +13,12 @@ def warp_flow(img, flow):
     return res.astype(img.dtype)
 
 
-def calculate_hommography_vector_field_prev(mat, Y=None, X=None):
-    #Y,X = in_img.shape[:2]
-    X,Y = 5,6
-    rng = np.arange(Y)[:, np.newaxis]
-    rng1 = np.arange(Y)
-    timg = np.zeros((3,Y,X))
-    rx = np.arange(X)
-    ry = np.arange(Y)
-    ry = np.repeat(ry,X)
-    ry = np.reshape(ry,(Y,X))
-    timg[0,:,:] = ry
-    #timg[1,:,0] += ry
-    rx = np.arange(X)
-    rx = np.tile(rx,Y)
-    rx = np.reshape(rx, (Y,X))
-    timg[1,:,:] = rx
-    timg = timg.reshape((3,Y*X))
-    rimg = mat @ timg
-    # swap axes
-    rimg = rimg.reshape((3,Y,X))
-    rimg = np.swapaxes(rimg,0,1)
-    rimg = np.swapaxes(rimg,1,2)
 
-    delx = rimg[:,:,0]
-    dely = rimg[:,:,1]
-    # last swap between X and Y
-    #rimg[:,:,0] = dely
-    #rimg[:,:,1] = delx
-    return rimg, delx, dely
 
-def calculate_hommography_vector_field(mat, Y=None, X=None):
-    Y,X = in_img.shape[:2]
+
+def calculate_hommography_vector_field(img, mat):
+    Y,X = img.shape[:2]
+    #X,Y = in_img.shape
     ###################################
     # For tests
     #X,Y = 2,4
@@ -56,15 +30,12 @@ def calculate_hommography_vector_field(mat, Y=None, X=None):
     #rng = np.arange(Y)[:, np.newaxis]
     #rng1 = np.arange(Y)
     timg = np.zeros((3,X,Y))
-    rx = np.arange(X)
-    rx = np.repeat(rx,Y)
+    rx = np.arange(Y)
+    rx = np.repeat(rx,X)
     rx = np.reshape(rx, (X,Y))
     timg[0,:,:] = rx
-
-    #ry = np.arange(Y-1,-1,-1)
-    ry = np.arange(Y)
-
-    ry = np.tile(ry,X)
+    ry = np.arange(X)
+    ry = np.tile(ry,Y)
 
     ry = np.reshape(ry, (X,Y))
     timg[1,:,:] = ry
@@ -82,9 +53,14 @@ def calculate_hommography_vector_field(mat, Y=None, X=None):
     # last swap between X and Y
     #rimg[:,:,0] = dely
     #rimg[:,:,1] = delx
+    rimg = rimg.copy()
+    rimg[:,:,0] = mapx
+    rimg[:, :, 1] = mapy
     return rimg, mapx, mapy
 
-def test_np(in_img):
+
+
+def test_np(in_img, ang=10):
     ang = math.pi/90
     #ang = 0
     cs = math.cos(ang)
@@ -96,19 +72,21 @@ def test_np(in_img):
     mat[0,2] = 0
     mat[1,2] = 0
     mat[2,2] = 1
-    dsize = (in_img.shape[1], in_img.shape[0])
-    wrapped_img = cv2.warpPerspective(in_img, mat, dsize)
-    X,Y = dsize
-    rimg, map_x, map_y = calculate_hommography_vector_field(mat, X=X, Y=Y)
-    flow = rimg[:,:,0:2]
-    flow = flow.astype(np.float32)
+    # dsize = (in_img.shape[1], in_img.shape[0])
+    wrapped_img = cv2.warpPerspective(in_img, mat, in_img.shape[1::-1])
+    #X,Y = in_img.shape[1::-1]
+    rimg, map_x, map_y = calculate_hommography_vector_field(in_img, mat)
+    #flow = rimg[:,:,0:2]
+    flow = rimg.astype(np.float32)
     #flow_img = cv2.remap(in_img, flow, None, cv2.INTER_LINEAR)
     #flow_img = cv2.remap(in_img, map_x, map_y, cv2.INTER_LINEAR)
     #flow_img = cv2.remap(in_img, map_y, map_x, cv2.INTER_LINEAR)
     flow_img = cv2.remap(in_img, map_x, map_y, cv2.INTER_LINEAR)
+    flow_img2 = cv2.remap(in_img, flow, None, cv2.INTER_LINEAR)
     cv2.imshow('in_image', in_img)
     cv2.imshow('wrapped_img', wrapped_img)
     cv2.imshow('flow_img', flow_img)
+    cv2.imshow('flow_img2', flow_img2)
     cv2.waitKey(1)
     return rimg
 
@@ -117,8 +95,9 @@ def test_np(in_img):
 if __name__ == '__main__':
     img_name = 'c:/Users/shimon.TECHSOMED/SW/BioTrace/TestsDB/raw_data_xy/mayo_p01_c1/full_frames/frame1050.png'
     in_img = cv2.imread(img_name, flags=cv2.IMREAD_GRAYSCALE)
-    st,ed = 100,500
-    in_img = in_img[st:ed, st:ed]
+    sty,edy = 100,500
+    stx,edx = 300,500
+    in_img = in_img[sty:edy, stx:edx]
     img = test_np(in_img)
     print('Enter any key to end:')
     s = input('Any key:')
