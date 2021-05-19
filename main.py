@@ -99,6 +99,9 @@ if __name__ == '__main__':
     stx,edx = 300,500
     in_img = in_img[sty:edy, stx:edx]
     img = test_np(in_img)
+    import sys
+
+    print(sys.path)
     print('Enter any key to end:')
     s = input('Any key:')
 
