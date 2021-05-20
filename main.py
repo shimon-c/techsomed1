@@ -92,6 +92,7 @@ def test_np(in_img, ang=10):
 
 
 # Press the green button in the gutter to run the script.
+# This is branch1
 if __name__ == '__main__':
     img_name = 'c:/Users/shimon.TECHSOMED/SW/BioTrace/TestsDB/raw_data_xy/mayo_p01_c1/full_frames/frame1050.png'
     in_img = cv2.imread(img_name, flags=cv2.IMREAD_GRAYSCALE)
