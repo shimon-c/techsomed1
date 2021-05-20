@@ -92,9 +92,11 @@ def test_np(in_img, ang=10):
 
 
 # Press the green button in the gutter to run the script.
+#this is branch2
 if __name__ == '__main__':
     img_name = 'c:/Users/shimon.TECHSOMED/SW/BioTrace/TestsDB/raw_data_xy/mayo_p01_c1/full_frames/frame1050.png'
     in_img = cv2.imread(img_name, flags=cv2.IMREAD_GRAYSCALE)
+    # make sure to get different
     sty,edy = 100,500
     stx,edx = 300,500
     in_img = in_img[sty:edy, stx:edx]
