@@ -2,7 +2,7 @@
 import numpy as np
 import cv2
 import math
-
+import imageio
 
 def warp_flow(img, flow):
     flow = -flow    # Invert flow sow that warp_flow(img0, calc_opt_flow(img0, img1)) ~= img1
@@ -91,11 +91,32 @@ def test_np(in_img, ang=10):
     return rimg
 
 
+def scale_invsig_2(x, scale=0.027777):
+    #rv = 0.5 + 1./(1 + np.exp(x*scale))
+    rv = 1/(1 + np.abs(x)*scale)
+    return rv
+
+def f(x,y):
+    return (1-y)/(x*y)
+
+def func(x:float, xo:float) -> float:
+    y = x * xo
+    return y
+
+
+import matplotlib.pyplot as plt
+
+x = np.arange(0,1,0.01)
+y = scale_invsig_2(x,scale=10)
+plt.plot(x,y)
+
 # Press the green button in the gutter to run the script.
 # This is branch1 and branch2
 if __name__ == '__main__':
+    y = func('st', 5)
     img_name = 'c:/Users/shimon.TECHSOMED/SW/BioTrace/TestsDB/raw_data_xy/mayo_p01_c1/full_frames/frame1050.png'
     in_img = cv2.imread(img_name, flags=cv2.IMREAD_GRAYSCALE)
+    in_img2 = imageio.imread(img_name)
     sty,edy = 100,500
     stx,edx = 300,500
     in_img = in_img[sty:edy, stx:edx]
